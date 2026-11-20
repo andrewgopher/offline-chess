@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>en</string>
+	<key>CFBundleExecutable</key>
+	<string>OfflineChess</string>
+	<key>CFBundleIdentifier</key>
+	<string>local.offlinechess.OfflineChess</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>Offline Chess</string>
+	<key>CFBundleDisplayName</key>
+	<string>Offline Chess</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>1.0</string>
+	<key>CFBundleVersion</key>
+	<string>1</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>13.0</string>
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.board-games</string>
+	<key>NSHighResolutionCapable</key>
+	<true/>
+	<key>NSPrincipalClass</key>
+	<string>NSApplication</string>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>Offline Chess uses peer-to-peer Wi-Fi to find and play against nearby Macs. No internet or Wi-Fi network is needed.</string>
+	<key>NSBonjourServices</key>
+	<array>
+		<string>_offline-chess._tcp</string>
+		<string>_offline-chess._udp</string>
+	</array>
+</dict>
+</plist>
