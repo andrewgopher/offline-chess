@@ -44,12 +44,12 @@ struct BoardView: View {
     let movableColor: PieceColor?
     let onMove: (Move) -> Void
 
-    @State private var selected: Square?
-    @State private var dragFrom: Square?
-    @State private var dragLocation: CGPoint?
+    @State private var selected: Square? = nil
+    @State private var dragFrom: Square? = nil
+    @State private var dragLocation: CGPoint? = nil
     @State private var selectedByThisPress = false
     @State private var pressStarted = false
-    @State private var promotion: PromotionRequest?
+    @State private var promotion: PromotionRequest? = nil
 
     private var canInteract: Bool {
         guard let color = movableColor else { return false }

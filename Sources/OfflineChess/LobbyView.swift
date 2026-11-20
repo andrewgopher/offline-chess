@@ -4,7 +4,7 @@ import SwiftUI
 struct LobbyView: View {
     @EnvironmentObject private var model: AppModel
     @State private var nameDraft = ""
-    @State private var gamePendingDeletion: MatchSnapshot?
+    @State private var gamePendingDeletion: MatchSnapshot? = nil
 
     var body: some View {
         VStack(spacing: 0) {

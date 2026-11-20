@@ -86,27 +86,27 @@ final class AppModel: ObservableObject {
     @Published private(set) var wifiPoweredOff = false
 
     @Published private(set) var screen: Screen = .lobby
-    @Published private(set) var match: Match?
+    @Published private(set) var match: Match? = nil
     @Published private(set) var linkStatus: LinkStatus = .offline
     @Published private(set) var opponentLeftOnPurpose = false
     /// The move number being viewed, or nil to follow the live position.
-    @Published private(set) var viewPly: Int?
+    @Published private(set) var viewPly: Int? = nil
     @Published var boardFlipped = false
 
     /// Setting this to nil (or replacing it) declines the invitation unless it was already answered.
-    @Published var incomingInvite: IncomingInvite? {
+    @Published var incomingInvite: IncomingInvite? = nil {
         didSet {
             if let old = oldValue, old.id != incomingInvite?.id { old.reply(false) }
         }
     }
-    @Published private(set) var outgoingInvite: OutgoingInvite?
+    @Published private(set) var outgoingInvite: OutgoingInvite? = nil
     /// Drives the "challenge this player" sheet.
-    @Published var challengeTarget: NearbyPlayer?
+    @Published var challengeTarget: NearbyPlayer? = nil
 
-    @Published private(set) var rematchOfferIn: Challenge?
-    @Published private(set) var rematchOfferOut: Challenge?
+    @Published private(set) var rematchOfferIn: Challenge? = nil
+    @Published private(set) var rematchOfferOut: Challenge? = nil
 
-    @Published private(set) var banner: String?
+    @Published private(set) var banner: String? = nil
 
     let launchedAt = Date()
 

@@ -245,7 +245,8 @@ public struct Match {
     /// Restarts the clock of the side to move. Clocks only run after White's first move.
     public mutating func resumeClock(at now: Date) {
         guard result == nil, game.ply > 0 else { return }
-        clock?.start(sideToMove, at: now)
+        let side = sideToMove
+        clock?.start(side, at: now)
     }
 
     // MARK: - Remote messages
@@ -412,7 +413,8 @@ public struct Match {
         if let outcome = game.outcome {
             finish(outcome, now: now, update: &update)
         } else {
-            clock?.start(sideToMove, at: now)
+            let side = sideToMove
+            clock?.start(side, at: now)
             updatedAt = now
         }
     }
