@@ -79,10 +79,11 @@ Sources/ChessCore/        Pure-Swift, Foundation-only, unit-tested
   Protocol.swift            wire messages, invitations, snapshots, PGN export
   Match.swift               the per-Mac game state machine (moves, clocks, offers, sync/merge)
   PGN.swift
+Sources/PeerKit/          PeerService: MultipeerConnectivity discovery + one encrypted 1:1 link
 Sources/OfflineChess/     macOS app (SwiftUI)
-  PeerService.swift         MultipeerConnectivity discovery + one encrypted 1:1 link
   AppModel.swift            app state; glues UI ⇄ Match ⇄ PeerService; persistence
   LobbyView / ChallengeViews / GameView / BoardView
+Sources/PeerSmokeTest/    headless tool: two copies find each other and play a game (CI check)
 Tests/ChessCoreTests/     perft move-generation tests, SAN, outcomes, two-Mac protocol simulations
 Support/Info.plist        bundle metadata, Local Network usage text and Bonjour service types
 scripts/build-app.sh      builds and packages the .app
@@ -108,3 +109,12 @@ swift test -c release
 ```
 
 Needs a full Xcode install. The Command Line Tools alone don't ship XCTest.
+
+To check the peer-to-peer link without the UI, run two copies of the smoke-test tool. Use one
+Mac, or one copy on each of two Macs:
+
+```sh
+swift build -c release --product PeerSmokeTest
+.build/release/PeerSmokeTest guest &
+.build/release/PeerSmokeTest host     # prints PASS when the scripted game completes
+```

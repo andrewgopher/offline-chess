@@ -3,21 +3,21 @@ import MultipeerConnectivity
 import ChessCore
 
 /// A Mac running Offline Chess that we can currently see.
-struct DiscoveredPeer: Hashable {
-    let peerID: MCPeerID
-    let playerID: String
-    let name: String
-    let protocolVersion: Int
-    let foundAt: Date
+public struct DiscoveredPeer: Hashable {
+    public let peerID: MCPeerID
+    public let playerID: String
+    public let name: String
+    public let protocolVersion: Int
+    public let foundAt: Date
 }
 
-enum PeerLinkState {
+public enum PeerLinkState {
     case connecting
     case connected
     case disconnected
 }
 
-protocol PeerServiceDelegate: AnyObject {
+public protocol PeerServiceDelegate: AnyObject {
     func peerService(_ service: PeerService, didUpdateNearby peers: [DiscoveredPeer])
     /// Call `reply` exactly once (extra calls are ignored).
     func peerService(_ service: PeerService, didReceiveInvitation context: Data?, from peerID: MCPeerID, reply: @escaping (Bool) -> Void)
@@ -32,13 +32,13 @@ protocol PeerServiceDelegate: AnyObject {
 /// joined to any network, e.g. in airplane mode.
 ///
 /// All delegate callbacks are delivered on the main queue.
-final class PeerService: NSObject {
-    static let serviceType = "offline-chess"  // Bonjour: _offline-chess._tcp / _udp (see Info.plist)
+public final class PeerService: NSObject {
+    public static let serviceType = "offline-chess"  // Bonjour: _offline-chess._tcp / _udp (see Info.plist)
 
-    weak var delegate: PeerServiceDelegate?
+    public weak var delegate: PeerServiceDelegate?
 
     private let playerID: String
-    private(set) var myPeerID: MCPeerID
+    public private(set) var myPeerID: MCPeerID
     private var advertiser: MCNearbyServiceAdvertiser?
     private var browser: MCNearbyServiceBrowser?
     private var discovered: [MCPeerID: DiscoveredPeer] = [:]
@@ -47,7 +47,7 @@ final class PeerService: NSObject {
     private var session: MCSession?
     private var sessionPeer: MCPeerID?
 
-    init(displayName: String, playerID: String) {
+    public init(displayName: String, playerID: String) {
         self.playerID = playerID
         self.myPeerID = PeerService.makePeerID(displayName: displayName)
         super.init()
@@ -73,7 +73,7 @@ final class PeerService: NSObject {
     }
 
     /// MCPeerID display names must be non-empty and at most 63 bytes of UTF-8.
-    static func sanitize(_ name: String) -> String {
+    public static func sanitize(_ name: String) -> String {
         var clean = name.trimmingCharacters(in: .whitespacesAndNewlines)
         if clean.isEmpty { clean = "Player" }
         while clean.utf8.count > 63 { clean.removeLast() }
@@ -82,7 +82,7 @@ final class PeerService: NSObject {
 
     // MARK: - Discovery
 
-    func start() {
+    public func start() {
         stopDiscovery()
         let info = ["pid": playerID, "v": String(Wire.protocolVersion)]
         let advertiser = MCNearbyServiceAdvertiser(peer: myPeerID, discoveryInfo: info, serviceType: PeerService.serviceType)
@@ -96,7 +96,7 @@ final class PeerService: NSObject {
         self.browser = browser
     }
 
-    func stopDiscovery() {
+    public func stopDiscovery() {
         advertiser?.stopAdvertisingPeer()
         advertiser?.delegate = nil
         advertiser = nil
@@ -108,7 +108,7 @@ final class PeerService: NSObject {
     }
 
     /// Changes the advertised name. Drops any link.
-    func restart(displayName: String) {
+    public func restart(displayName: String) {
         disconnect()
         myPeerID = PeerService.makePeerID(displayName: displayName)
         start()
@@ -125,7 +125,7 @@ final class PeerService: NSObject {
 
     // MARK: - Link
 
-    func invite(_ peer: MCPeerID, context: Data, timeout: TimeInterval) {
+    public func invite(_ peer: MCPeerID, context: Data, timeout: TimeInterval) {
         guard let browser = browser else { return }
         let session = makeSession(with: peer)
         browser.invitePeer(peer, to: session, withContext: context, timeout: timeout)
@@ -140,13 +140,13 @@ final class PeerService: NSObject {
         return session
     }
 
-    var isConnected: Bool {
+    public var isConnected: Bool {
         guard let session = session, let peer = sessionPeer else { return false }
         return session.connectedPeers.contains(peer)
     }
 
     @discardableResult
-    func send(_ data: Data) -> Bool {
+    public func send(_ data: Data) -> Bool {
         guard let session = session, let peer = sessionPeer, session.connectedPeers.contains(peer) else { return false }
         do {
             try session.send(data, toPeers: [peer], with: .reliable)
@@ -159,7 +159,7 @@ final class PeerService: NSObject {
 
     /// Forgets the current link immediately (no further callbacks for it). The actual
     /// disconnect can be delayed so a final message (e.g. "leaving") gets flushed first.
-    func disconnect(after delay: TimeInterval = 0) {
+    public func disconnect(after delay: TimeInterval = 0) {
         guard let session = session else { return }
         self.session = nil
         self.sessionPeer = nil
@@ -175,7 +175,7 @@ final class PeerService: NSObject {
 // MARK: - MCNearbyServiceAdvertiserDelegate
 
 extension PeerService: MCNearbyServiceAdvertiserDelegate {
-    func advertiser(_ advertiser: MCNearbyServiceAdvertiser,
+    public func advertiser(_ advertiser: MCNearbyServiceAdvertiser,
                     didReceiveInvitationFromPeer peerID: MCPeerID,
                     withContext context: Data?,
                     invitationHandler: @escaping (Bool, MCSession?) -> Void) {
@@ -198,7 +198,7 @@ extension PeerService: MCNearbyServiceAdvertiserDelegate {
         }
     }
 
-    func advertiser(_ advertiser: MCNearbyServiceAdvertiser, didNotStartAdvertisingPeer error: Error) {
+    public func advertiser(_ advertiser: MCNearbyServiceAdvertiser, didNotStartAdvertisingPeer error: Error) {
         NSLog("Offline Chess: could not advertise: \(error.localizedDescription)")
     }
 }
@@ -206,7 +206,7 @@ extension PeerService: MCNearbyServiceAdvertiserDelegate {
 // MARK: - MCNearbyServiceBrowserDelegate
 
 extension PeerService: MCNearbyServiceBrowserDelegate {
-    func browser(_ browser: MCNearbyServiceBrowser, foundPeer peerID: MCPeerID, withDiscoveryInfo info: [String: String]?) {
+    public func browser(_ browser: MCNearbyServiceBrowser, foundPeer peerID: MCPeerID, withDiscoveryInfo info: [String: String]?) {
         DispatchQueue.main.async { [weak self] in
             guard let self = self, browser === self.browser,
                   let pid = info?["pid"], pid != self.playerID
@@ -218,7 +218,7 @@ extension PeerService: MCNearbyServiceBrowserDelegate {
         }
     }
 
-    func browser(_ browser: MCNearbyServiceBrowser, lostPeer peerID: MCPeerID) {
+    public func browser(_ browser: MCNearbyServiceBrowser, lostPeer peerID: MCPeerID) {
         DispatchQueue.main.async { [weak self] in
             guard let self = self, browser === self.browser else { return }
             self.discovered[peerID] = nil
@@ -226,7 +226,7 @@ extension PeerService: MCNearbyServiceBrowserDelegate {
         }
     }
 
-    func browser(_ browser: MCNearbyServiceBrowser, didNotStartBrowsingForPeers error: Error) {
+    public func browser(_ browser: MCNearbyServiceBrowser, didNotStartBrowsingForPeers error: Error) {
         NSLog("Offline Chess: could not browse: \(error.localizedDescription)")
     }
 }
@@ -234,7 +234,7 @@ extension PeerService: MCNearbyServiceBrowserDelegate {
 // MARK: - MCSessionDelegate
 
 extension PeerService: MCSessionDelegate {
-    func session(_ session: MCSession, peer peerID: MCPeerID, didChange state: MCSessionState) {
+    public func session(_ session: MCSession, peer peerID: MCPeerID, didChange state: MCSessionState) {
         DispatchQueue.main.async { [weak self] in
             guard let self = self, session === self.session, peerID == self.sessionPeer else { return }
             let mapped: PeerLinkState
@@ -253,22 +253,22 @@ extension PeerService: MCSessionDelegate {
         }
     }
 
-    func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
+    public func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
         DispatchQueue.main.async { [weak self] in
             guard let self = self, session === self.session, peerID == self.sessionPeer else { return }
             self.delegate?.peerService(self, didReceive: data, from: peerID)
         }
     }
 
-    func session(_ session: MCSession, didReceive stream: InputStream, withName streamName: String, fromPeer peerID: MCPeerID) {}
+    public func session(_ session: MCSession, didReceive stream: InputStream, withName streamName: String, fromPeer peerID: MCPeerID) {}
 
-    func session(_ session: MCSession, didStartReceivingResourceWithName resourceName: String,
+    public func session(_ session: MCSession, didStartReceivingResourceWithName resourceName: String,
                  fromPeer peerID: MCPeerID, with progress: Progress) {}
 
-    func session(_ session: MCSession, didFinishReceivingResourceWithName resourceName: String,
+    public func session(_ session: MCSession, didFinishReceivingResourceWithName resourceName: String,
                  fromPeer peerID: MCPeerID, at localURL: URL?, withError error: Error?) {}
 
-    func session(_ session: MCSession, didReceiveCertificate certificate: [Any]?,
+    public func session(_ session: MCSession, didReceiveCertificate certificate: [Any]?,
                  fromPeer peerID: MCPeerID, certificateHandler: @escaping (Bool) -> Void) {
         certificateHandler(true)
     }

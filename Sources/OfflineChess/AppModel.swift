@@ -3,6 +3,7 @@ import ChessCore
 import CoreWLAN
 import Foundation
 import MultipeerConnectivity
+import PeerKit
 import UniformTypeIdentifiers
 
 struct NearbyPlayer: Identifiable, Hashable {
